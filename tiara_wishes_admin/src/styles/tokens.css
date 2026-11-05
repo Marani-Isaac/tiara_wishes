@@ -1,0 +1,24 @@
+/*
+  Shared with the Tiara Wishes storefront Figma tokens:
+  deep plum, cream, and soft gold.
+*/
+:root {
+  --tw-ink: #241428;
+  --tw-plum: #4c246e;
+  --tw-plum-deep: #3b184f;
+  --tw-paper: #f8f4ee;
+  --tw-card: #ffffff;
+  --tw-line: #e8dfd4;
+  --tw-gold: #e6d3a4;
+  --tw-gold-deep: #4c246e;
+  --tw-gold-soft: #f6efe2;
+  --tw-lavender: #f4eef8;
+  --tw-muted: #6d6274;
+  --tw-danger: #8d3b3b;
+  --tw-ok: #2d6a4f;
+  --tw-warn: #8a5a12;
+  --tw-display: "Fraunces", Georgia, serif;
+  --tw-body: "Manrope", "Segoe UI", sans-serif;
+  --tw-radius: 20px;
+  --tw-shadow: 0 16px 36px rgba(59, 24, 79, 0.08);
+}

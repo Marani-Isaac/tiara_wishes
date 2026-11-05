@@ -1,0 +1,210 @@
+TIARA WISHES
+Functionality and features
+Written from the storefront, admin app, and Flask API as they stand.
+
+The system is a household and lifestyle shop. Shoppers buy with cash. Digital Chamas are described in the shop but cannot take a payment, hold a wallet, or track contributions.
+
+
+1. THE THREE PARTS
+
+Storefront
+  Customer shop. React and Vite. Local address http://localhost:5174
+  Reads the catalogue, prices, contact details, and homepage copy from the API.
+  Does not include staff tools.
+
+Admin
+  Staff workspace. React and Vite. Local address http://localhost:5173/admin/login
+  Publishes products, stock, orders, payments, deliveries, promotions, and site content.
+  Each screen is shown only when the signed-in staff member has the matching permission.
+
+API
+  Flask service. Local address http://127.0.0.1:5055
+  Prefix /api/v1
+  Stores data in MySQL. Serves uploaded images from /media
+  The storefront dev server proxies /api and /media to the API.
+
+
+2. CUSTOMER SHOP
+
+Home
+  Announcement bar from published site content, with a fallback line when none is set.
+  Hero for new arrivals, with the housewares photo on the right.
+  A save note appears only when a featured product has a higher compare-at price.
+  Category cards in one horizontal row, with arrows. Each card uses an icon for that department.
+  Featured products in rows of up to eight, scrolled with arrows.
+  Empty space can show a store promotion marked for that use, otherwise featured products, otherwise a prompt to request an unlisted item.
+  Chama teaser, marked coming soon. It links to an explanation page and is not a way to pay.
+
+Browse and search
+  Shop all, and a department strip built from published categories.
+  Search from the header. A search with no matches offers a request for that product.
+  Filters for category, brand, and price. Sort by newest, price, or name.
+  Product rows scroll sideways per row. The whole list scrolls downward. Scrollbars are hidden and arrows are used.
+  On a small screen the filter sits above the products.
+
+Product page
+  One card with the photo, brand, name, cash price, compare-at price when it is higher, stock, short description, quantity, and Add to cart.
+  Further details in the same card when the admin entered them: key features, specifications, what is in the box, and the longer description.
+  Specifications can include SKU, model, size, dimensions, weight, material, warranty, brand, and extra label-and-value rows.
+  Watch video appears only when the admin saved a usage video link. YouTube, Vimeo, a full TikTok video link, Instagram, and a direct video file play in the page. A short share link opens in a new tab.
+  Out of stock products can be requested from the shop.
+  Approved reviews are listed when the product has any. The shop does not invent ratings.
+  More products from the same category.
+
+Cart
+  Guests can add items before signing in. The cart is kept for the browser session and mirrored for the guest.
+  Change quantity or remove a line. Unavailable lines are marked.
+  The top bar uses a cart icon and the item count.
+  Signing in can merge the guest cart into the account cart.
+
+Checkout
+  Sign in or register is required before the order is placed.
+  Delivery address, chosen from saved addresses or entered for Kenya.
+  Optional order note and promotion code. The quote is recalculated from current prices.
+  Pay now is the working choice. Pay with chama is shown as coming soon and cannot be selected.
+  Payment uses the configured provider. M-Pesa asks for the phone that should receive the prompt. A mock provider exists for non-production testing.
+  The shop does not mark an order paid from the browser. Payment is confirmed by the API.
+  Placing an order uses an idempotency key so a repeat submit does not create a second order.
+
+Account
+  Profile: first name, last name, and phone.
+  Change password.
+  Saved addresses: add, edit, delete, and a default address.
+  Orders list and an order detail page.
+  Recent notifications, which can be marked read.
+  Sign out.
+
+Sign-in
+  Register, sign in, forgot password, and reset password.
+  The access token stays in the browser tab. The refresh token stays in an HttpOnly cookie.
+
+Contact and policies
+  Product request form: name, phone, email, product name, description, quantity, optional budget, and a photo.
+  Sending opens an email to the shop address published in settings. It does not place an order, and the photo is not uploaded to the shop.
+  Published email, phone, and WhatsApp.
+  A map of Kenya. A street pin is not shown until the store publishes an address.
+  About, delivery and returns, privacy, and terms use published content blocks, with plain placeholders when a block is missing.
+
+Chamas
+  Informational only. A shopper cannot join, contribute, or pay through a Chama.
+  Rewards in the header opens that same explanation. It is not a points balance.
+
+
+3. STAFF ADMIN
+
+Access
+  Staff sign in at /admin/login.
+  Roles that can be assigned: customer, admin, inventory manager, order manager, finance manager, content manager, and super admin.
+  Screens and API actions check permissions such as products.manage, inventory.manage, orders.manage, customers.read, customers.manage, payments.manage, deliveries.manage, promotions.manage, reviews.moderate, content.manage, users.manage, reports.read, and audit.read.
+  The sidebar hides items the person cannot use, and shows counts for the sections they can open.
+  Chama in the admin menu is marked for later and does not operate.
+
+Dashboard
+  Paid sales and paid orders for a chosen period.
+  Pending orders and pending payments.
+  Products at or below their low-stock threshold.
+
+Products
+  Create, edit, and archive products.
+  Fields include name, slug, SKU, category, brand, short description, description, cash price, compare-at price, currency, featured flag, active flag, and status (draft, active, archived).
+  Usage video link.
+  Handling: normal, delicate, or perishable.
+  Model, material, size, warranty, key features, box contents, and specification rows.
+  Weight and dimensions.
+  Opening stock on create, and a low-stock threshold.
+  Upload images, delete an image, and reorder images. One image is primary.
+  Search and meta title and description for the product.
+
+Categories and brands
+  Create, edit, and delete categories, including a parent so departments can be nested.
+  Create, edit, and delete brands, including a logo and description.
+
+Inventory
+  On-hand quantity, reserved quantity, and available quantity.
+  Adjustments: restock, return, opening stock, and correction.
+  Each adjustment is recorded.
+
+Orders
+  List and open an order.
+  Move an order only along the allowed path:
+    pending payment can become cancelled or failed
+    confirmed can become processing or refund pending
+    processing can become ready to dispatch or refund pending
+    ready to dispatch can become dispatched or refund pending
+    dispatched can become delivered
+    refund pending can become refunded
+    failed can become cancelled
+    delivered, cancelled, and refunded do not move further
+  Payment status on an order can be unpaid, pending, paid, failed, partially refunded, or refunded.
+
+Customers
+  List customers and open a customer.
+  Activate or deactivate an account when the staff member can manage customers.
+  Assign roles when the staff member can manage users.
+
+Payments
+  List payments and open one by its merchant reference.
+  Statuses: initiated, pending, succeeded, failed, cancelled, refunded, partially refunded.
+  Record a refund. Recording a refund restates the original payment in reports. It does not send money back through the payment provider by itself.
+  Providers implemented in the API: mock (disabled in production) and M-Pesa, including a webhook for the provider to confirm payment.
+
+Deliveries
+  List deliveries and update a delivery.
+  Statuses: pending, processing, packed, dispatched, in transit, delivered, failed, returned.
+  Delivery places with their own fees. Shoppers can load the published places. Staff can create, edit, and delete places.
+  Store settings also hold a delivery fee and a free-delivery threshold in Kenya shillings.
+
+Promotions
+  Percentage or fixed amount.
+  Optional code, start, end, minimum order amount, and usage limit.
+  Active flag.
+  A flag to show the promotion in empty space on the shop.
+  The code is checked when the shopper requests a checkout quote.
+
+Reviews
+  Shoppers can submit a review on a product.
+  Staff moderate reviews. Only approved reviews are counted and shown on the product page.
+
+Content
+  Announcements, advertisements, and video links for the storefront.
+  A video entry requires an https link.
+  Homepage blocks, including the announcement bar, about copy, and the Chama teaser, come from this content.
+
+Settings
+  Contact email, phone, and WhatsApp.
+  Social links for Facebook, Instagram, TikTok, and YouTube.
+  Currency.
+  Delivery fee and free-delivery threshold.
+
+Staff
+  See staff accounts and assign the roles listed above.
+
+Reports
+  Sales report: paid sales and paid order count between two dates.
+  Paid sales count succeeded payments, and partially refunded payments after recorded refunds. Pending, failed, cancelled, and fully refunded payments are left out.
+  Product report: units and revenue by product for paid orders in the period.
+
+Audit logs
+  Staff actions that change the shop are written to an audit log and can be reviewed by someone with audit access.
+
+
+4. HOW THE PIECES FIT
+
+  The admin publishes a product, its price, images, stock, and optional video.
+  The storefront lists only active products and reads those fields from the API.
+  A guest cart is stored against a cart session. After sign-in it can be merged.
+  Checkout quotes the current prices and any valid promotion, then creates an order.
+  Payment is started with the configured provider. The order stays unpaid until the API records a successful payment.
+  Staff then move the order and its delivery through the status paths above.
+  Stock available to shoppers is on-hand quantity minus reserved quantity.
+
+
+5. NOT IN THIS RELEASE
+
+  Chama joining, contributions, schedules, member position, or payment.
+  A rewards or points wallet. The Rewards control only opens the Chama explanation.
+  A wishlist.
+  A stored inbox for product requests. The request opens the shopper's email app.
+  A published street address or a map pin. The contact map is Kenya until an address is published.
+  Marking a payment as paid from the shopper's browser.
+  Sending a refund to M-Pesa or another provider automatically. Staff record the refund in the system.
